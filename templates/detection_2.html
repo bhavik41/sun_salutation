@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yoga Pose Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='detection_style2.css') }}">
+</head>
+<body>
+    <div class="container">
+
+        <div class="video-container">
+            <div class="video-frame">
+                <img id="videoFeed" src="{{ url_for('start_yoga_pose_detection') }}" alt="Yoga Pose Video Stream">
+            </div>
+
+            <div class="buttons">
+                <button id="startButton" onclick="startDetection()">Start Detection</button>
+                <button id="stopButton" onclick="stopDetection()">Stop Detection</button>
+            </div>
+
+            <div id="feedback">
+                    <p id="feedbackText">Pose feedback will appear here</p>
+            </div>
+        </div>
+
+        <!-- Right Side Information Containers -->
+        <div class="info-container">
+            <!-- Yoga Pose Details -->
+            <div class="yoga-details">
+                <h3>Yoga Poses</h3>
+                <ul>
+                    <li>Downward Facing Dog</li>
+                    <li>Goddess Pose</li>
+                    <li>Warrior Pose</li>
+                    <li>Plank Pose</li>
+                    <li>Tree Pose</li>
+                </ul>
+            </div>
+
+            <!-- Steps on How to Use -->
+            <div class="steps">
+                <h3>How to Use:</h3>
+                <ol>
+                    <li>Ensure your webcam is enabled and positioned correctly.</li>
+                    <li>Click the "Start Detection" button to begin detecting your yoga poses.</li>
+                    <li>Follow along with the five essential yoga poses: Tree Pose, Downward Dog, Plank Pose, Warrior Pose, and Goddess Pose as your movements are detected.</li>
+                    <li>Click the "Stop Detection" button once you've completed your session.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+
+  <script>
+    function startDetection() {
+      // Start the pose detection by updating the video feed source
+      document.getElementById('videoFeed').src = "/start_yoga_pose_detection";
+      updateFeedback();  // Start getting feedback updates
+    }
+
+    function stopDetection() {
+      // Send a request to stop the pose detection
+      fetch('/stop_yoga_pose_detection', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data.message);
+          document.getElementById('videoFeed').src = "static/images/stop.png";  // Clear the video feed when stopped
+          updateFeedback();
+        });
+    }
+
+    function updateFeedback() {
+      // Update feedback every second by fetching from the backend
+      setInterval(() => {
+        fetch('/feedback')
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('feedbackText').innerText = data.feedback;
+          });
+      }, 1000);
+    }
+  </script>
+</body>
+</html>

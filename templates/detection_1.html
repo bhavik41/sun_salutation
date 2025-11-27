@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suryanamaskar Pose Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='detection_style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="video-container">
+            <div class="video-frame">
+                <img id="videoFeed" src="{{ url_for('start_pose_detection') }}" alt="Video Stream" style="height: 100%; width: 100%">
+            </div>
+
+            <div class="buttons">
+              <button id="startButton" onclick="startDetection()">Start Detection</button>
+              <button id="stopButton" onclick="stopDetection()">Stop Detection</button>
+            </div>
+
+            <div id="feedback">
+              <p id="feedbackText">Pose feedback will appear here</p>
+            </div>
+        </div>
+
+        <div class="info-container">
+            <div class="yoga-details">
+                <h3>Suryanamaskar Poses</h3>
+                <ul>
+                    <li>1. Pranamasana (Prayer Pose)</li>
+                    <li>2. Hastauttanasana (Raised Arms Pose)</li>
+                    <li>3. Padahastasana (Hand to Foot Pose)</li>
+                    <li>4. Ashwa Sanchalanasana (Equestrian Pose)</li>
+                    <li>5. Dandasana (Stick Pose)</li>
+                    <li>6. Ashtanga Namaskara (Eight-Limbed Pose)</li>
+                    <li>7. Bhujangasana (Cobra Pose)</li>
+                    <li>8. Adho Mukha Svanasana (Downward Dog)</li>
+                    <li>9. Ashwa Sanchalanasana (Equestrian Pose)</li>
+                    <li>10. Padahastasana (Hand to Foot Pose)</li>
+                    <li>11. Hastauttanasana (Raised Arms Pose)</li>
+                    <li>12. Pranamasana (Prayer Pose)</li>
+                </ul>
+            </div>
+
+            <div class="steps">
+                <h3>How to Use (Suryanamaskar):</h3>
+                <ol>
+                    <li>Ensure your webcam is enabled and positioned correctly.</li>
+                    <li>Click the "Start Detection" button to begin detecting your Suryanamaskar sequence.</li>
+                    <li>Perform the 12 poses of Suryanamaskar.</li>
+                    <li>Click the "Stop Detection" button once you have completed your Suryanamaskar routine.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+  <script>
+    function startDetection() {
+      document.getElementById('videoFeed').src = "/start_pose_detection";
+      updateFeedback(); // Start fetching feedback
+    }
+
+    function stopDetection() {
+      fetch('/stop_pose_detection', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data.message);
+          document.getElementById('videoFeed').src = "static/images/stop.png";  // Stop video feed
+          updateFeedback();
+        });
+    }
+
+    function updateFeedback() {
+      // Clear any existing intervals to avoid multiple fetches
+      clearInterval(feedbackInterval);
+
+      feedbackInterval = setInterval(() => {
+        fetch('/feedback')
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('feedbackText').innerText = data.feedback;
+          });
+      }, 1000);
+    }
+
+    // Variable to hold interval ID
+    let feedbackInterval;
+  </script>
+</body>
+</html>

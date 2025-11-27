@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yoga Position Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <div><img src=".\static\images\logo.png" alt="logo" class="img-logo"></div>
+            <div style="margin-top: 10px; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; font-style: italic;">Asana Vision</div>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#poses">Yoga Poses</a></li>
+            <li><a href="#detection">Surya Namskar</a></li>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div>
+            <h1>What is Yoga...??</h1>
+            <p>Yoga is an ancient practice that unites the mind, body, and spirit through physical postures and breathing techniques. It promotes balance, flexibility, and inner peace, offering a path to overall well-being.</p>
+        </div>
+        <img src=".\static\images\Pose_2_wo_borders.webp"  width="500" height="500" style="animation: fadeIn 1.5s ease-in-out;">
+    </section>
+
+    <!-- Yoga Poses Section -->
+    <section id="poses" class="poses">
+        <div class="poses-section">
+            <h2>Yoga Poses We Detect</h2>
+            <div class="poses-container">
+                <div class="pose-card">
+                    <div class="pose-image">
+                        <img src=".\static\images\downdog.jpeg" alt="Downward Dog Pose">
+                    </div>
+                    <div class="pose-info">
+                        <h3>DownDog Pose</h3>
+                        <p>(Adho Mukha Svanasana)</p>
+                        <p>Strengthens the arms, shoulders, and legs.</p>
+                    </div>
+                </div>
+
+                <div class="pose-card">
+                    <div class="pose-image">
+                        <img src=".\static\images\goddess.jpg" alt="Goddess Pose">
+                    </div>
+                    <div class="pose-info">
+                        <h3>Goddess Pose</h3>
+                        <p>(Utkata Konasana)</p>
+                        <p>Opens the hips and strengthens the lower body.</p>
+                    </div>
+                </div>
+
+                <div class="pose-card">
+                    <div class="pose-image">
+                        <img src=".\static\images\plank.png" alt="Plank Pose">
+                    </div>
+                    <div class="pose-info">
+                        <h3>Plank Pose</h3>
+                        <p>(Phalakasana)</p>
+                        <p>Builds core strength and tones the body.</p>
+                    </div>
+                </div>
+
+                <div class="pose-card">
+                    <div class="pose-image">
+                        <img src=".\static\images\tree.jpeg" alt="Tree Pose">
+                    </div>
+                    <div class="pose-info">
+                        <h3>Tree Pose</h3>
+                        <p>(Vrikshasana)</p>
+                        <p>Improves balance and strengthens your legs.</p>
+                    </div>
+                </div>
+
+                <div class="pose-card">
+                    <div class="pose-image">
+                        <img src=".\static\images\warrior.jpeg" alt="Warrior Pose">
+                    </div>
+                    <div class="pose-info">
+                        <h3>Warrior Pose</h3>
+                        <p>(Virabhadrasana)</p>
+                        <p>Builds stamina and stretches the chest and lungs.</p>
+                    </div>
+                </div>
+                <button class="start-button"><a href="{{ url_for('detection_2') }}">Start Session</a></button>
+            </div>
+    </div>
+
+    </section>
+
+    <!-- Detection Section -->
+    <section id="detection" class="detection">
+        <div class="suryanamaskar-section">
+            <h2>Suryanamaskar Poses</h2>
+            <div class="suryanamaskar-grid">
+                    <div class="suryanamaskar-pose" id="pose-pranamasana">
+                        <div class="suryanamaskar-image"></div>
+                        <div class="suryanamaskar-content">
+                            <h3>Pose 1: Pranamasana</h3>
+                            <p>Prayer Pose</p>
+                        </div>
+                    </div>
+                    <div class="suryanamaskar-pose" id="pose-hastauttanasana">
+                        <div class="suryanamaskar-image"></div>
+                        <div class="suryanamaskar-content">
+                            <h3>Pose 2: Hastauttanasana</h3>
+                            <p>Raised Arms Pose</p>
+                        </div>
+                    </div>
+                    <div class="suryanamaskar-pose" id="pose-padahastasana">
+                        <div class="suryanamaskar-image"></div>
+                        <div class="suryanamaskar-content">
+                            <h3>Pose 3: Padahastasana</h3>
+                            <p>Hand to Foot Pose</p>
+                        </div>
+                    </div>
+                    <div class="suryanamaskar-pose" id="pose-ashwa">
+                        <div class="suryanamaskar-image"></div>
+                        <div class="suryanamaskar-content">
+                            <h3>Pose 4: Ashwa Sanchalanasana</h3>
+                            <p>Equestrian Pose</p>
+                        </div>
+                    </div>
+                    <div class="suryanamaskar-pose" id="pose-dandasana">
+                        <div class="suryanamaskar-image"></div>
+                        <div class="suryanamaskar-content">
+                            <h3>Pose 5: Dandasana</h3>
+                            <p>Stick Pose</p>
+                        </div>
+                    </div>
+                    <div class="suryanamaskar-pose" id="pose-ashtanga">
+                        <div class="suryanamaskar-image"></div>
+                        <div class="suryanamaskar-content">
+                            <h3>Pose 6: Ashtanga Namaskara</h3>
+                            <p>Salute with Eight Limbs</p>
+                        </div>
+                    </div>
+                    <div class="suryanamaskar-pose" id="pose-bhujangasana">
+                        <div class="suryanamaskar-image"></div>
+                        <div class="suryanamaskar-content">
+                            <h3>Pose 7: Bhujangasana</h3>
+                            <p>Cobra Pose</p>
+                        </div>
+                    </div>
+                    <div class="suryanamaskar-pose" id="pose-adho-mukha">
+                        <div class="suryanamaskar-image"></div>
+                        <div class="suryanamaskar-content">
+                            <h3>Pose 8: Adho Mukha Svanasana</h3>
+                            <p>Downward Facing Dog</p>
+                        </div>
+                    </div>
+                    <div class="suryanamaskar-pose" id="pose-ashwa-2">
+                        <div class="suryanamaskar-image"></div>
+                        <div class="suryanamaskar-content">
+                            <h3>Pose 9: Ashwa Sanchalanasana</h3>
+                            <p>Equestrian Pose</p>
+                        </div>
+                    </div>
+                    <div class="suryanamaskar-pose" id="pose-padahastasana-2">
+                        <div class="suryanamaskar-image"></div>
+                        <div class="suryanamaskar-content">
+                            <h3>Pose 10: Padahastasana</h3>
+                            <p>Hand to Foot Pose</p>
+                        </div>
+                    </div>
+                    <div class="suryanamaskar-pose" id="pose-hastauttanasana-2">
+                        <div class="suryanamaskar-image"></div>
+                        <div class="suryanamaskar-content">
+                            <h3>Pose 11: Hastauttanasana</h3>
+                            <p>Raised Arms Pose</p>
+                        </div>
+                    </div>
+                    <div class="suryanamaskar-pose" id="pose-pranamasana-2">
+                        <div class="suryanamaskar-image"></div>
+                        <div class="suryanamaskar-content">
+                            <h3>Pose 12: Pranamasana</h3>
+                            <p>Prayer Pose</p>
+                        </div>
+                    </div>
+            </div>
+            <div style="margin-top: 4em;">
+                <button class="start-button"><a href="{{ url_for('detection_1') }}">Start Session</a></button>
+            </div>
+    </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="content-box">
+                <h2>About Me</h2>
+                <p>I am Vaibhav Soni, a Computer Science Engineering student at Indus University with a passion for leveraging technology to solve real-world problems. I have hands-on experience in machine learning, deep learning, and web development. My current work involves developing innovative solutions for yoga posture detection, particularly using MediaPipe and OpenCV for Suryanamaskar pose detection. I am always eager to learn and apply new technologies to make a positive impact.</p>
+            </div>
+
+            <div class="image-row">
+                <div class="image-container">
+                    <img src=".\static\images\vaibhav.jpg" alt="Vaibhav Soni">
+                </div>
+            </div>
+
+            <div class="name-row">
+                <div class="name-container">
+                    <p id="vaibhav">Vaibhav Soni</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <h2>Contact Us</h2>
+        <form action="https://api.web3forms.com/submit" method="POST">
+
+            <input type="hidden" name="access_key" value="f4c02020-70c3-4275-b08c-9e34092ee12b">
+
+            <label for="name">Name</label>
+            <input type="text" name="name" id="name" required>
+
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" required>
+
+            <label for="message">Message</label>
+            <textarea name="message" id="message" rows="4" required></textarea>
+
+            <button class="start-button">Send Message</button>
+        </form>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 Yoga Pose Detection</p>
+    </footer>
+</body>
+</html>
