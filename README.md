@@ -265,9 +265,6 @@ Returns the predicted pose name with confidence score and optional correction su
 
 Contributions are welcome! Please feel free to submit a Pull Request or open an issue for bugs and feature requests.
 
-## License
-
-This project is licensed under the MIT License.
 
 ## Acknowledgments
 
