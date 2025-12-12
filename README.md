@@ -9,9 +9,6 @@ AsanaVision is a web-based application that detects and classifies yoga poses us
 - **Pose Detection using Angles**: Calculates angles between body joints to classify Suryanamaskar poses accurately.
 - **User-friendly Interface**: An intuitive web interface built using Flask for easy interaction.
 
-## NOTE
-
-I HAVE NOT ADDED THE MODEL IN GITHUB BECAUSE OF THE SIZE LIMITATION.
 
 ## Setup Instructions
 
@@ -31,6 +28,10 @@ I HAVE NOT ADDED THE MODEL IN GITHUB BECAUSE OF THE SIZE LIMITATION.
     ```
 
 4. Open a browser and navigate to `http://localhost:5000` to interact with the web application.
+
+## NOTE
+
+I HAVE NOT ADDED THE MODEL IN GITHUB BECAUSE OF THE SIZE LIMITATION.
 
 ## Models Used
 
