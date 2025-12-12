@@ -37,7 +37,7 @@ I HAVE NOT ADDED THE MODEL IN GITHUB BECAUSE OF THE SIZE LIMITATION.
 
 ### 1. TensorFlow CNN Model
 - **Purpose**: Classifies five yoga poses: Downdog, Goddess, Plank, Tree, Warrior.
-- **Performance**: Achieved 99% training accuracy and 95% validation accuracy.
+- **Performance**:  75% validation accuracy.
 - **Model Architecture**:
   - Rescaling
   - Convolutional layers
