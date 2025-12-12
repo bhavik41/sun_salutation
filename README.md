@@ -5,7 +5,7 @@ AsanaVision is a web-based application that detects and classifies yoga poses us
 ## Features
 
 - **Real-time Pose Detection**: Leverages the MediaPipe model to detect body landmarks in real time.
-- **Pose Classification**: Classifies yoga poses with a TensorFlow-based CNN model achieving 99% training accuracy and 95% validation accuracy.
+- **Pose Classification**: Classifies yoga poses with a TensorFlow-based CNN model achieving 75% validation accuracy.
 - **Pose Detection using Angles**: Calculates angles between body joints to classify Suryanamaskar poses accurately.
 - **User-friendly Interface**: An intuitive web interface built using Flask for easy interaction.
 
