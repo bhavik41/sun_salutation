@@ -48,22 +48,6 @@ AsanaVision is a web-based application that detects and classifies yoga poses us
 - **Pose Estimation**: Calculates joint angles (e.g., elbow, knee, shoulder) to classify complex yoga postures, particularly from the Suryanamaskar series.
 - **Real-Time Detection**: Provides live feedback by drawing body landmarks and pose connections over the video feed.
 
-## Screenshots
-
-- **Home Page:**
-  ![image](https://github.com/user-attachments/assets/4bd574c6-a82a-4cd1-8c06-d474dce3abd0)
-  ![image](https://github.com/user-attachments/assets/e42933ac-765d-4dc6-8275-ff919ae90c70)
-  ![image](https://github.com/user-attachments/assets/0a54fd71-6d35-47e4-bc9f-1f7434316766)
-  ![image](https://github.com/user-attachments/assets/a0e5f2f8-723d-4ced-893b-553f69dc719e)
-
-- **Pose Detection (TensorFlow Model):**
-  ![image](https://github.com/user-attachments/assets/8889277a-64b0-47c1-82cd-a9e97f98558b)
-
-
-- **Suryanamaskar Pose Detection (MediaPipe Model):**
-  ![image](https://github.com/user-attachments/assets/6e8ed885-2d83-44d8-80bd-1b8d0259e965)
-
-
 ## Technologies Used
 
 - Flask for the web framework

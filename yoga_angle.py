@@ -1,13 +1,22 @@
 import math
 import cv2
-import mediapipe as mp
-
-mp_pose = mp.solutions.pose
-mp_drawing = mp.solutions.drawing_utils
+try:
+    import mediapipe as mp
+    mp_pose = mp.solutions.pose
+    mp_drawing = mp.solutions.drawing_utils
+    MEDIAPIPE_AVAILABLE = True
+except ImportError:
+    mp = None
+    mp_pose = None
+    mp_drawing = None
+    MEDIAPIPE_AVAILABLE = False
 
 
 def detectPose(image, pose):
     """Detects the pose in the given image and returns the output image with landmarks and landmarks."""
+    if not MEDIAPIPE_AVAILABLE:
+        return image, []
+
     output_image = image.copy()
     imageRGB = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = pose.process(imageRGB)
@@ -39,8 +48,15 @@ def calculateAngle(landmark1, landmark2, landmark3):
 
 def classifyPose(landmarks):
     """Classifies the pose based on landmarks and returns the pose label."""
+    if not MEDIAPIPE_AVAILABLE or not landmarks:
+        return 'Unknown Pose'
+
     label = 'Unknown Pose'
     color = (0, 0, 255)  # Default color is red
+
+    # Check if landmarks are detected (MediaPipe returns 33 landmarks for a full pose)
+    if not landmarks or len(landmarks) < 33:
+        return 'No person detected'
 
     # Calculate key angles for pose classification
     left_elbow_angle = calculateAngle(landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value],

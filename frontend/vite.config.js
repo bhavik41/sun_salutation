@@ -7,11 +7,12 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/start_pose_detection': 'http://localhost:5000',
-      '/start_yoga_pose_detection': 'http://localhost:5000',
-      '/stop_pose_detection': 'http://localhost:5000',
-      '/stop_yoga_pose_detection': 'http://localhost:5000',
-      '/feedback': 'http://localhost:5000',
+      '/api': 'http://localhost:5001',
+      '/start_pose_detection': 'http://localhost:5001',
+      '/start_yoga_pose_detection': 'http://localhost:5001',
+      '/stop_pose_detection': 'http://localhost:5001',
+      '/stop_yoga_pose_detection': 'http://localhost:5001',
+      '/feedback': 'http://localhost:5001',
     }
   }
 })

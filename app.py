@@ -1,9 +1,9 @@
 from flask import Flask, Response, jsonify, request
 from flask_cors import CORS
 import cv2
-# import yoga
-# import yoga_angle
-# import mediapipe as mp
+import numpy as np
+import yoga
+import yoga_angle
 import threading
 import time
 
@@ -16,13 +16,30 @@ feedback = "Waiting for pose detection..."
 stop_detection = False
 lock = threading.Lock()
 
+try:
+    import mediapipe as mp
+    mp_pose = mp.solutions.pose
+    pose = mp_pose.Pose()
+    MEDIAPIPE_AVAILABLE = True
+except ImportError:
+    print("MediaPipe not found. Pose detection will be disabled.")
+    mp = None
+    mp_pose = None
+    pose = None
+    MEDIAPIPE_AVAILABLE = False
+
 def init_camera():
     global camera
     if camera is None or not camera.isOpened():
         camera = cv2.VideoCapture(0)
-        time.sleep(2)  # Allow camera to warm up
+        if not camera.isOpened():
+            print("Camera not found. Using dummy video stream.")
+            camera = None
+        else:
+            time.sleep(2)  # Allow camera to warm up
 
 def generate_frames():
+    """Generator for Suryanamaskar (Sun Salutation) - uses Angle-based logic"""
     global camera, feedback, stop_detection
     init_camera()
     
@@ -31,29 +48,33 @@ def generate_frames():
             if stop_detection:
                 break
             
-            success, frame = camera.read()
-            if not success:
-                break
+            if camera:
+                success, frame = camera.read()
+                if not success:
+                    break
+            else:
+                # Generate dummy frame (black image)
+                frame = np.zeros((480, 640, 3), dtype=np.uint8)
+                cv2.putText(frame, "No Camera", (200, 240), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                time.sleep(0.1)
 
-            # Process frame for Suryanamaskar (using yoga.py logic)
-            # Note: We're assuming yoga.main() or similar logic can process a frame
-            # For now, we'll use the existing yoga module's logic if adaptable, 
-            # or just stream the frame. 
-            # The original app used a loop inside the route, which is bad for streaming.
-            # We'll adapt to yield frames.
-            
-            # Since we don't have the full yoga.py content to refactor completely,
-            # we will wrap the frame processing here.
-            
             try:
-                # This is a simplified integration. Ideally, yoga.py should have a process_frame function.
-                # Assuming yoga.py has a main loop we can't easily break, we might need to refactor it.
-                # For this migration, let's assume we can just stream the video for now
-                # and overlay feedback if possible.
+                # Process frame for Suryanamaskar using yoga_angle.py
+                # 1. Detect landmarks
+                output_image, landmarks = yoga_angle.detectPose(frame, pose)
                 
-                # To properly integrate, we'd need to modify yoga.py to accept a frame and return a processed frame + feedback.
-                # Let's assume we just stream for now to get the app running, 
-                # as the user wants to "run the frontend".
+                # 2. Classify pose based on angles if landmarks detected
+                if landmarks:
+                    predicted_pose = yoga_angle.classifyPose(landmarks)
+                    feedback = f"Detected: {predicted_pose}"
+                    
+                    # Overlay prediction on frame
+                    color = (0, 255, 0) if predicted_pose != 'Unknown Pose' else (0, 0, 255)
+                    cv2.putText(output_image, predicted_pose, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+                    frame = output_image
+                else:
+                    feedback = "No pose detected"
+                    cv2.putText(frame, "No pose detected", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
                 
                 ret, buffer = cv2.imencode('.jpg', frame)
                 frame = buffer.tobytes()
@@ -70,6 +91,7 @@ def generate_frames():
         camera = None
 
 def generate_yoga_frames():
+    """Generator for General Yoga Poses - uses Deep Learning model"""
     global camera, feedback, stop_detection
     init_camera()
     
@@ -78,12 +100,24 @@ def generate_yoga_frames():
             if stop_detection:
                 break
             
-            success, frame = camera.read()
-            if not success:
-                break
+            if camera:
+                success, frame = camera.read()
+                if not success:
+                    break
+            else:
+                # Generate dummy frame
+                frame = np.zeros((480, 640, 3), dtype=np.uint8)
+                cv2.putText(frame, "No Camera", (200, 240), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+                time.sleep(0.1)
 
             try:
-                # Similar placeholder for yoga_angle.py logic
+                # Use the deep learning model to classify pose
+                predicted_pose = yoga.classifyPose(frame)
+                feedback = f"Detected: {predicted_pose}"
+                
+                # Overlay prediction on frame
+                cv2.putText(frame, predicted_pose, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+                
                 ret, buffer = cv2.imencode('.jpg', frame)
                 frame = buffer.tobytes()
             except Exception as e:
@@ -130,5 +164,10 @@ def get_feedback():
     global feedback
     return jsonify({'feedback': feedback})
 
+@app.route('/api/yoga_feedback')
+def get_yoga_feedback():
+    global feedback
+    return jsonify({'feedback': feedback})
+
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)

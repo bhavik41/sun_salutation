@@ -42,12 +42,20 @@ export default {
             },
             keyframes: {
                 'scroll-down': {
-                    '0%, 100%': { transform: 'translateY(0)', opacity: '0.5' },
-                    '50%': { transform: 'translateY(6px)', opacity: '1' },
+                    '0%, 100%': { transform: 'translateY(0) translateZ(0)', opacity: '0.5' },
+                    '50%': { transform: 'translateY(6px) translateZ(0)', opacity: '1' },
+                },
+                'fade-in': {
+                    '0%': { opacity: '0', transform: 'translateY(10px) translateZ(0)' },
+                    '100%': { opacity: '1', transform: 'translateY(0) translateZ(0)' },
                 }
             },
             animation: {
                 'scroll-down': 'scroll-down 2s infinite ease-in-out',
+                'fade-in': 'fade-in 0.5s ease-out',
+            },
+            transitionTimingFunction: {
+                'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
             }
         },
     },

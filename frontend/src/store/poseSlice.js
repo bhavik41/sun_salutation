@@ -7,6 +7,11 @@ export const fetchFeedback = createAsyncThunk('pose/fetchFeedback', async () => 
     return data.feedback;
 });
 
+export const fetchYogaFeedback = createAsyncThunk('pose/fetchYogaFeedback', async () => {
+    const data = await poseAPI.getYogaFeedback();
+    return data.feedback;
+});
+
 const poseSlice = createSlice({
     name: 'pose',
     initialState: {
@@ -36,6 +41,17 @@ const poseSlice = createSlice({
                 state.feedback = action.payload;
             })
             .addCase(fetchFeedback.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message;
+            })
+            .addCase(fetchYogaFeedback.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(fetchYogaFeedback.fulfilled, (state, action) => {
+                state.loading = false;
+                state.feedback = action.payload;
+            })
+            .addCase(fetchYogaFeedback.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
             });

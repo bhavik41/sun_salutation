@@ -1,39 +1,52 @@
-import React, { useRef } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useRef, useMemo, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
 import Card from '../../components/Card/Card';
 import Button from '../../components/Button/Button';
 
 function Home() {
-    // 3D Tilt Logic
+    const navigate = useNavigate();
+
+    // 3D Tilt Logic with optimizations
     const x = useMotionValue(0);
     const y = useMotionValue(0);
 
-    // Smooth spring physics for the tilt
-    const mouseX = useSpring(x, { stiffness: 150, damping: 15 });
-    const mouseY = useSpring(y, { stiffness: 150, damping: 15 });
+    // Smooth spring physics for the tilt with reduced stiffness for smoother motion
+    const mouseX = useSpring(x, { stiffness: 100, damping: 20 });
+    const mouseY = useSpring(y, { stiffness: 100, damping: 20 });
 
-    function handleMouseMove({ clientX, clientY, currentTarget }) {
-        const { left, top, width, height } = currentTarget.getBoundingClientRect();
-        const xPct = (clientX - left) / width - 0.5;
-        const yPct = (clientY - top) / height - 0.5;
-        x.set(xPct);
-        y.set(yPct);
-    }
+    // Debounced mouse move handler
+    let rafId = useRef(null);
+    const handleMouseMove = useCallback(({ clientX, clientY, currentTarget }) => {
+        if (rafId.current) {
+            cancelAnimationFrame(rafId.current);
+        }
 
-    function handleMouseLeave() {
+        rafId.current = requestAnimationFrame(() => {
+            const { left, top, width, height } = currentTarget.getBoundingClientRect();
+            const xPct = (clientX - left) / width - 0.5;
+            const yPct = (clientY - top) / height - 0.5;
+            x.set(xPct);
+            y.set(yPct);
+        });
+    }, [x, y]);
+
+    const handleMouseLeave = useCallback(() => {
+        if (rafId.current) {
+            cancelAnimationFrame(rafId.current);
+        }
         x.set(0);
         y.set(0);
-    }
+    }, [x, y]);
 
-    const rotateX = useTransform(mouseY, [-0.5, 0.5], [5, -5]);
-    const rotateY = useTransform(mouseX, [-0.5, 0.5], [-5, 5]);
-    const brightness = useTransform(mouseY, [-0.5, 0.5], [1.1, 0.9]);
+    const rotateX = useTransform(mouseY, [-0.5, 0.5], [3, -3]);
+    const rotateY = useTransform(mouseX, [-0.5, 0.5], [-3, 3]);
+    const brightness = useTransform(mouseY, [-0.5, 0.5], [1.05, 0.95]);
 
     // Parallax Background Orbs
     const { scrollY } = useScroll();
-    const y1 = useTransform(scrollY, [0, 500], [0, 200]);
-    const y2 = useTransform(scrollY, [0, 500], [0, -150]);
+    const y1 = useTransform(scrollY, [0, 500], [0, 150]);
+    const y2 = useTransform(scrollY, [0, 500], [0, -100]);
 
     // Simplified animation variants
     const fadeUp = {
@@ -45,11 +58,16 @@ function Home() {
         }
     };
 
+    // ADDED: Handle pose card click
+    const handlePoseClick = (poseName) => {
+        navigate(`/yoga?pose=${encodeURIComponent(poseName)}`);
+    };
+
     return (
-        <div className="flex flex-col items-center gap-20 pb-32 overflow-hidden w-full bg-bg-primary" onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+        <div className="flex flex-col items-center gap-20 pb-32 overflow-hidden w-full bg-bg-primary">
 
             {/* Cinematic Hero Section */}
-            <section id="home" className="relative w-full min-h-screen flex items-center px-6 lg:px-24 py-20 z-10 overflow-hidden perspective-1000">
+            <section id="home" className="relative w-full min-h-screen flex items-center px-6 lg:px-24 py-20 z-10 overflow-hidden">
 
                 {/* Background Image Layer */}
                 <div className="absolute inset-0 z-0">
@@ -57,30 +75,24 @@ function Home() {
                         src="/images/Pose_2_wo_borders.webp"
                         alt="Yoga Background"
                         className="absolute right-0 bottom-0 h-[85vh] w-auto object-contain opacity-80 translate-x-[10%] translate-y-[5%]"
+                        loading="eager"
                     />
                     {/* Gradient Overlay for Text Readability */}
                     <div className="absolute inset-0 bg-gradient-to-r from-bg-primary via-bg-primary/80 to-transparent"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-transparent to-transparent"></div>
-                    {/* Vignette */}
-                    <div className="absolute inset-0 bg-radial-gradient from-transparent to-bg-primary/40 pointer-events-none"></div>
                 </div>
 
-                {/* Floating Parallax Orbs */}
-                <motion.div style={{ y: y1, x: -50 }} className="absolute top-20 right-[20%] w-64 h-64 bg-accent/20 rounded-full blur-[80px] pointer-events-none z-0 mix-blend-screen"></motion.div>
-                <motion.div style={{ y: y2, x: 50 }} className="absolute bottom-40 left-[10%] w-96 h-96 bg-gold/10 rounded-full blur-[100px] pointer-events-none z-0 mix-blend-screen"></motion.div>
-
-                {/* 3D Content Layer */}
+                {/* 3D Content Layer - Only apply tilt on non-mobile */}
                 <motion.div
-                    className="relative z-10 max-w-3xl perspective-1000"
+                    className="relative z-10 max-w-3xl"
                     initial="hidden"
                     animate="visible"
                     variants={{
-                        visible: { transition: { staggerChildren: 0.1 } }
+                        visible: { transition: { staggerChildren: 0.15 } }
                     }}
                     style={{
                         rotateX,
                         rotateY,
-                        filter: useTransform(brightness, b => `brightness(${b})`)
                     }}
                 >
                     <motion.div variants={fadeUp} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 mb-8 shadow-lg hover:bg-white/10 transition-colors cursor-default">
@@ -112,66 +124,137 @@ function Home() {
                         </Link>
                     </motion.div>
                 </motion.div>
-
-                {/* Scroll Indicator */}
-                <motion.div
-                    className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-60"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1, y: [0, 10, 0] }}
-                    transition={{ delay: 1, duration: 2, repeat: Infinity }}
-                >
-                    <div className="w-6 h-10 rounded-full border-2 border-primary/30 flex justify-center p-1">
-                        <div className="w-1 h-2 bg-primary/50 rounded-full animate-scroll-down"></div>
-                    </div>
-                    <span className="text-xs uppercase tracking-widest text-primary/40">Scroll</span>
-                </motion.div>
             </section>
 
             {/* Yoga Poses Section */}
             <section id="poses" className="w-full max-w-7xl px-6 lg:px-8 py-24 relative z-10">
                 <div className="text-center mb-20">
                     <h2 className="text-5xl font-serif mb-6 text-primary">Master the <span className="italic text-accent">Asanas</span></h2>
-                    <p className="text-lg text-gray-500 max-w-2xl mx-auto font-light">Explore our library of supported poses with real-time feedback.</p>
+                    <p className="text-lg text-gray-500 max-w-2xl mx-auto font-light">Click on any pose to start detection for that specific pose.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <Card title="DownDog Pose" imageSrc="/images/downdog.jpeg">
-                        <p className="italic text-accent mb-2 font-serif text-lg">(Adho Mukha Svanasana)</p>
-                        <p>Strengthens the arms, shoulders, and legs. Calms the brain and helps relieve stress.</p>
-                    </Card>
+                    {useMemo(() => {
+                        // Smart image mapping - uses AI-generated images where available, 
+                        // or maps to similar existing yoga images
+                        const poseImageMap = {
+                            'Adho Mukha Svanasana': '/images/poses/adho-mukha-svanasana.jpg',
+                            'Adho Mukha Vrksasana': '/images/poses/adho-mukha-vrksasana.jpg',
+                            'Alanasana': '/images/poses/alanasana.jpg',
+                            'Anjaneyasana': '/images/poses/anjaneyasana.jpg',
+                            'Ardha Chandrasana': '/images/poses/ardha-chandrasana.jpg',
+                            'Ardha Matsyendrasana': '/images/poses/ardha-matsyendrasana.jpg',
+                            'Ardha Navasana': '/images/poses/ardha-navasana.jpg',
+                            'Ardha Pincha Mayurasana': '/images/downdog.jpeg',
+                            'Ashta Chandrasana': '/images/4.jpeg',
+                            'Baddha Konasana': '/images/goddess.jpg',
+                            'Bakasana': '/images/poses/bakasana.jpg',
+                            'Balasana': '/images/poses/balasana.jpg',
+                            'Bitilasana': '/images/poses/bitilasana.jpg',
+                            'Camatkarasana': '/images/poses/camatkarasana.jpg',
+                            'Dhanurasana': '/images/7.jpeg',
+                            'Eka Pada Rajakapotasana': '/images/poses/eka-pada-rajakapotasana.jpg',
+                            'Garudasana': '/images/poses/garudasana.jpg',
+                            'Halasana': '/images/poses/halasana.jpg',
+                            'Hanumanasana': '/images/poses/hanumanasana.png',
+                            'Malasana': '/images/goddess.jpg',
+                            'Marjaryasana': '/images/poses/marjaryasana.jpg',
+                            'Navasana': '/images/poses/navasana.jpg',
+                            'Padmasana': '/images/poses/padmasana.jpg',
+                            'Parsva Virabhadrasana': '/images/warrior.jpeg',
+                            'Parsvottanasana': '/images/3.jpeg',
+                            'Paschimottanasana': '/images/poses/paschimottanasana.jpg',
+                            'Phalakasana': '/images/plank.png',
+                            'Pincha Mayurasana': '/images/poses/pincha-mayurasana.jpg',
+                            'Salamba Bhujangasana': '/images/7.jpeg',
+                            'Salamba Sarvangasana': '/images/poses/salamba-sarvangasana.jpg',
+                            'Setu Bandha Sarvangasana': '/images/poses/setu-bandha-sarvangasana.jpg',
+                            'Sivasana': '/images/poses/sivasana.jpg',
+                            'Supta Kapotasana': '/images/poses/supta-kapotasana.jpg',
+                            'Trikonasana': '/images/poses/trikonasana.jpg',
+                            'Upavistha Konasana': '/images/poses/upavistha-konasana.jpg',
+                            'Urdhva Dhanurasana': '/images/poses/urdhva-dhanurasana.jpg',
+                            'Urdhva Mukha Svsnssana': '/images/8.jpeg',
+                            'Ustrasana': '/images/poses/ustrasana.jpg',
+                            'Utkatasana': '/images/poses/utkatasana.jpg',
+                            'Uttanasana': '/images/3.jpeg',
+                            'Utthita Hasta Padangusthasana': '/images/poses/utthita-hasta-padangusthasana.jpg',
+                            // 'Utthita Parsvakonasana': '/images/warrior.jpeg',
+                            'Vasisthasana': '/images/plank.png',
+                            // 'Virabhadrasana One': '/images/warrior.jpeg',
+                            // 'Virabhadrasana Three': '/images/warrior.jpeg',
+                            // 'Virabhadrasana Two': '/images/warrior.jpeg',
+                            'Vrksasana': '/images/tree.jpeg'
+                        };
 
-                    <Card title="Goddess Pose" imageSrc="/images/goddess.jpg">
-                        <p className="italic text-accent mb-2 font-serif text-lg">(Utkata Konasana)</p>
-                        <p>Opens the hips and strengthens the lower body. Stimulates the uro-genital system.</p>
-                    </Card>
+                        const poses = [
+                            'Adho Mukha Svanasana',
+                            'Adho Mukha Vrksasana',
+                            'Alanasana',
+                            'Anjaneyasana',
+                            'Ardha Chandrasana',
+                            'Ardha Matsyendrasana',
+                            'Ardha Navasana',
+                            'Ardha Pincha Mayurasana',
+                            'Ashta Chandrasana',
+                            'Baddha Konasana',
+                            'Bakasana',
+                            'Balasana',
+                            'Bitilasana',
+                            'Camatkarasana',
+                            'Dhanurasana',
+                            'Eka Pada Rajakapotasana',
+                            'Garudasana',
+                            'Halasana',
+                            'Hanumanasana',
+                            'Malasana',
+                            'Marjaryasana',
+                            'Navasana',
+                            'Padmasana',
+                            'Parsva Virabhadrasana',
+                            'Parsvottanasana',
+                            'Paschimottanasana',
+                            'Phalakasana',
+                            'Pincha Mayurasana',
+                            'Salamba Bhujangasana',
+                            'Salamba Sarvangasana',
+                            'Setu Bandha Sarvangasana',
+                            'Sivasana',
+                            'Supta Kapotasana',
+                            'Trikonasana',
+                            'Upavistha Konasana',
+                            'Urdhva Dhanurasana',
+                            'Urdhva Mukha Svsnssana',
+                            'Ustrasana',
+                            'Utkatasana',
+                            'Uttanasana',
+                            'Utthita Hasta Padangusthasana',
+                            // 'Utthita Parsvakonasana',
+                            'Vasisthasana',
+                            // 'Virabhadrasana One',
+                            // 'Virabhadrasana Three',
+                            // 'Virabhadrasana Two',
+                            'Vrksasana'
+                        ];
 
-                    <Card title="Plank Pose" imageSrc="/images/plank.png">
-                        <p className="italic text-accent mb-2 font-serif text-lg">(Phalakasana)</p>
-                        <p>Builds core strength and tones the body. Prepares the body for more challenging arm balances.</p>
-                    </Card>
 
-                    <Card title="Tree Pose" imageSrc="/images/tree.jpeg">
-                        <p className="italic text-accent mb-2 font-serif text-lg">(Vrikshasana)</p>
-                        <p>Improves balance and strengthens your legs. Increases focus and concentration.</p>
-                    </Card>
-
-                    <Card title="Warrior Pose" imageSrc="/images/warrior.jpeg">
-                        <p className="italic text-accent mb-2 font-serif text-lg">(Virabhadrasana)</p>
-                        <p>Builds stamina and stretches the chest and lungs. Strengthens shoulders and back muscles.</p>
-                    </Card>
-
-                    <div className="w-full h-full min-h-[400px] rounded-2xl border-2 border-dashed border-primary/10 flex flex-col items-center justify-center p-8 text-center group hover:border-accent/30 transition-colors bg-white/20">
-                        <div className="w-16 h-16 rounded-full bg-primary/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                            <span className="text-2xl text-primary/40">+</span>
-                        </div>
-                        <h3 className="text-xl font-serif font-semibold text-primary/60 mb-2">More Coming Soon</h3>
-                        <p className="text-sm text-gray-400">We are constantly adding new poses.</p>
-                    </div>
+                        return poses.map((pose, index) => (
+                            <Card
+                                key={pose}
+                                title={pose}
+                                imageSrc={poseImageMap[pose] || '/images/yoga-placeholder.jpg'}
+                                onClick={() => handlePoseClick(pose)}
+                            >
+                                {/* <p className="italic text-accent mb-2 font-serif text-lg">({pose})</p> */}
+                                <p>Click to start detection for this pose.</p>
+                            </Card>
+                        ));
+                    }, [])}
                 </div>
 
                 <div className="flex justify-center mt-20">
                     <Link to="/yoga">
-                        <Button variant="primary" size="lg">Start Yoga Detection</Button>
+                        <Button variant="primary" size="lg">Start Yoga Detection (All Poses)</Button>
                     </Link>
                 </div>
             </section>
@@ -200,16 +283,12 @@ function Home() {
                             { id: 10, name: "Padahastasana", subtitle: "Hand to Foot Pose", img: "10.jpeg" },
                             { id: 11, name: "Hastauttanasana", subtitle: "Raised Arms Pose", img: "11.jpeg" },
                             { id: 12, name: "Pranamasana", subtitle: "Prayer Pose", img: "12.jpeg" }
-                        ].map((pose, index) => (
-                            <motion.div
+                        ].map((pose) => (
+                            <div
                                 key={pose.id}
-                                className="group relative h-72 rounded-2xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-sm cursor-pointer shadow-lg hover:shadow-gold/20 transition-all duration-300 hover:-translate-y-1"
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: index * 0.05 }}
+                                className="group relative h-72 rounded-2xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-sm cursor-pointer shadow-lg hover:shadow-gold/20 transition-all duration-300 hover:-translate-y-1 will-change-transform"
                             >
-                                <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style={{ backgroundImage: `url(/images/${pose.img})` }}></div>
+                                <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105 will-change-transform" style={{ backgroundImage: `url(/images/${pose.img})` }}></div>
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-500"></div>
 
                                 <div className="absolute top-4 right-4 w-10 h-10 rounded-full border border-white/20 flex items-center justify-center bg-white/10 backdrop-blur-md font-serif font-bold text-white/90">
@@ -220,7 +299,7 @@ function Home() {
                                     <h3 className="text-lg font-semibold text-white mb-1 group-hover:text-gold transition-colors">{pose.name}</h3>
                                     <p className="text-sm text-gray-300 group-hover:text-white transition-colors">{pose.subtitle}</p>
                                 </div>
-                            </motion.div>
+                            </div>
                         ))}
                     </div>
 
@@ -232,28 +311,6 @@ function Home() {
                 </div>
             </section>
 
-            {/* About Section */}
-            <section id="about" className="w-full max-w-6xl px-6 lg:px-8 py-24 relative z-10">
-                <div className="flex flex-col md:flex-row items-center gap-20">
-                    <div className="flex-1 flex justify-center relative">
-                        <div className="absolute inset-0 bg-gradient-to-tr from-accent to-gold rounded-full blur-3xl opacity-20"></div>
-                        <div className="relative w-80 h-80 rounded-full overflow-hidden border-8 border-white shadow-2xl z-10">
-                            <img src="/images/vaibhav.jpg" alt="Vaibhav Soni" className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" />
-                        </div>
-                    </div>
-
-                    <div className="flex-1 text-center md:text-left">
-                        <span className="text-accent font-medium tracking-widest uppercase text-sm mb-4 block">The Developer</span>
-                        <h2 className="text-5xl font-serif mb-8 text-primary">About the <span className="italic text-primary/80">Creator</span></h2>
-                        <p className="text-lg text-gray-600 mb-6 leading-relaxed font-light">
-                            I am <span className="font-semibold text-primary border-b-2 border-accent/30">Vaibhav Soni</span>, a Computer Science Engineering student at Indus University with a passion for leveraging technology to solve real-world problems.
-                        </p>
-                        <p className="text-lg text-gray-600 leading-relaxed mb-8 font-light">
-                            I have hands-on experience in machine learning, deep learning, and web development. My current work involves developing innovative solutions for yoga posture detection.
-                        </p>
-                    </div>
-                </div>
-            </section>
 
             {/* Contact Section */}
             <section id="contact" className="w-full max-w-4xl px-6 lg:px-8 pb-32 relative z-10">

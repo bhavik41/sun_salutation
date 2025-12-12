@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = '';
 
 // Create axios instance
 const api = axios.create({
@@ -12,19 +12,25 @@ const api = axios.create({
 export const poseAPI = {
     // Get feedback
     getFeedback: async () => {
-        const response = await api.get('/feedback');
+        const response = await api.get('/api/feedback');
+        return response.data;
+    },
+
+    // Get yoga feedback
+    getYogaFeedback: async () => {
+        const response = await api.get('/api/yoga_feedback');
         return response.data;
     },
 
     // Stop pose detection
     stopPoseDetection: async () => {
-        const response = await api.post('/stop_pose_detection');
+        const response = await api.post('/api/stop_pose_detection');
         return response.data;
     },
 
     // Stop yoga pose detection
     stopYogaPoseDetection: async () => {
-        const response = await api.post('/stop_yoga_pose_detection');
+        const response = await api.post('/api/stop_yoga_pose_detection');
         return response.data;
     },
 };
